@@ -243,7 +243,7 @@
 
     function openText(which){
       const supported = typeof dlgText.showModal === 'function';
-      const title = which==='A' ? 'Article A — Blog (ton sensationnaliste)' : 'Article B — Article scientifique (ton nuancé)';
+      const title = which==='A' ? 'Article A — Blog (ton sensationnaliste)' : 'Article B';
       const body = which==='A' ? ARTICLE_A : ARTICLE_B;
       if(supported){
         document.getElementById('dlgTextTitle').textContent = title;
