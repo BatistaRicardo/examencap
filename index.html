@@ -41,6 +41,12 @@
     .modal iframe{width:100%; height:60vh; border:0}
     .modal .foot{display:flex; gap:10px; align-items:center; justify-content:space-between; padding:12px 16px; border-top:1px solid #232632}
     .hint{font-size:12px; color:var(--muted)}
+  .modalText{background:var(--card); border:1px solid #232632; border-radius:18px; width:min(900px, 92vw); max-height:86vh; overflow:hidden; display:grid; grid-template-rows:auto 1fr auto}
+    .modalText .head{display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid #232632}
+    .modalText .body{padding:18px; background:#0b0f1c; overflow:auto}
+    .article h4{margin:8px 0 6px 0}
+    .article p{line-height:1.55; color:var(--ink)}
+    .article .meta{color:var(--muted); font-size:13px; margin-bottom:8px}
   </style>
 </head>
 <body>
@@ -60,6 +66,8 @@
         <p class="muted">Compare deux articles sur le même sujet. Justifie par 3 indices concrets (source, auteur, date, ton, preuves…). Puis saisis le code affiché en fin de formulaire.</p>
         <div class="row">
           <button class="btn" id="open1">Ouvrir le Formulaire</button>
+          <button class="btn" id="artA" data-which="A">Lire l’Article A (blog)</button>
+          <button class="btn" id="artB" data-which="B">Lire l’Article B (scientifique)</button>
           <span class="pill">Durée suggérée : 15 min</span>
         </div>
         <div class="sep"></div>
@@ -152,7 +160,32 @@
     </div>
   </dialog>
 
+  <!-- Modal texte pour articles -->
+  <dialog id="dlgText">
+    <div class="modalText">
+      <div class="head">
+        <h2 id="dlgTextTitle">Article</h2>
+        <button class="btn" id="closeText">Fermer</button>
+      </div>
+      <div class="body">
+        <div id="articleContainer" class="article"></div>
+      </div>
+      <div class="foot" style="padding:12px 16px; border-top:1px solid #232632; display:flex; justify-content:space-between; align-items:center; gap:10px">
+        <div class="row" style="gap:8px">
+          <span class="pill">🔎 Auteur</span>
+          <span class="pill">📅 Date</span>
+          <span class="pill">🔗 Sources</span>
+          <span class="pill">🗣️ Ton</span>
+          <span class="pill">🎓 Références</span>
+        </div>
+        <span class="hint">Lis l’article, puis réponds au formulaire (identifie Auteur, Date, Sources, Ton…)</span>
+      </div>
+    </div>
+  </dialog>
+
   <script>
+    // S'assure que le script s'exécute une fois le DOM prêt
+    document.addEventListener('DOMContentLoaded', ()=>{
     // --- CONFIGUREZ ICI vos liens Google Forms (intégrés) ---
     // Ouvrez chaque Formulaire > 3 points > Obtenir le lien d'intégration > copiez l'URL '.../viewform?embedded=true'
     const FORM_URLS = {
@@ -168,9 +201,29 @@
     // --- État en mémoire (par onglet) ---
     const state = { s1:false, s2:false, s3:false };
 
+    // --- Contenus des articles (Salle 1) ---
+    const ARTICLE_A = `
+      <h4>Les écrans détruisent l’intelligence des enfants, selon une étude choc !</h4>
+      <div class="meta">Le Réveil des Consciences – Blog Opinion — Publié le 3 octobre 2023 — Auteur : « Jules Libre »</div>
+      <p>Une nouvelle étude affirme que l’utilisation quotidienne des écrans « réduit l’intelligence des enfants jusqu’à 40 % ». Les chercheurs, dont les noms n’ont pas été rendus publics, auraient étudié des milliers d’élèves dans plusieurs écoles. Les résultats sont alarmants : plus les jeunes passent du temps sur tablette et téléphone, plus leur niveau scolaire s’effondre.</p>
+      <p>Selon l’étude, les écrans capturent le cerveau grâce à des ondes électromagnétiques qui rendent les enfants dépendants et passifs. Beaucoup d’enseignants témoignent d’une baisse dramatique du niveau général.</p>
+      <p>Les parents doivent réagir immédiatement : il faut <strong>interdire les écrans</strong> avant qu’il ne soit trop tard pour la nouvelle génération.</p>
+    `;
+
+    const ARTICLE_B = `
+      <h4>Temps d’écran : ce que montre réellement la recherche scientifique</h4>
+      <div class="meta">Sciences & Éducation – Magazine de vulgarisation — Publié le 21 avril 2023 — Auteur : Dr. Claire Dufour (Université de Liège)</div>
+      <p>Plusieurs études récentes se sont penchées sur l’impact du temps d’écran chez les jeunes. Les résultats montrent qu’il n’existe <strong>pas de lien direct</strong> entre l’utilisation d’appareils numériques et une baisse générale de l’intelligence.</p>
+      <p>Les effets dépendent surtout de <strong>l’usage</strong> : un temps d’écran passif (scroll infini, vidéos automatisées) peut diminuer la capacité d’attention à court terme, tandis qu’un usage <strong>actif et guidé</strong> (applications pédagogiques, recherche, création numérique) peut au contraire renforcer la mémoire, la logique ou le vocabulaire.</p>
+      <p>« La question n’est pas <em>écran ou pas écran</em>, mais <em>comment</em>, <em>pour quoi</em>, et <em>pendant combien de temps</em> », explique le professeur Martin Ledoux, spécialiste en éducation numérique à l’Université de Montréal.</p>
+      <p>Les chercheurs recommandent un usage accompagné, des pauses régulières et une <strong>éducation aux médias</strong> plutôt qu’une interdiction totale.</p>
+    `;
+
     const $ = (q) => document.querySelector(q);
     const dlg = $('#dlg');
     const iframe = $('#frm');
+    const dlgText = document.getElementById('dlgText');
+    const articleContainer = document.getElementById('articleContainer');
 
     function openForm(which){
       let title = {
@@ -186,10 +239,44 @@
 
     // Ouvrir formulaires
     $('#open1').addEventListener('click',()=>openForm('salle1'));
+    // Délégation d'événements pour éviter les problèmes de timing
+    document.addEventListener('click',(e)=>{
+      const t = e.target;
+      if(!(t instanceof HTMLElement)) return;
+      if(t.id==='artA' || t.id==='artB'){
+        const which = t.dataset.which || (t.id==='artA'?'A':'B');
+        openText(which);
+      }
+    });
     $('#open2').addEventListener('click',()=>openForm('salle2'));
     $('#open3').addEventListener('click',()=>openForm('salle3'));
     $('#openFinal').addEventListener('click',()=>openForm('final'));
     $('#close').addEventListener('click',()=>{ dlg.close(); iframe.src='about:blank'; });
+    document.getElementById('closeText').addEventListener('click',()=>{ dlgText.close(); articleContainer.innerHTML=''; });
+    dlgText.addEventListener('click',(e)=>{ if(e.target === dlgText){ dlgText.close(); articleContainer.innerHTML=''; } });
+    window.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && dlgText.open){ dlgText.close(); articleContainer.innerHTML=''; } });
+
+  }); // fin DOMContentLoaded articleContainer.innerHTML=''; });
+
+    function openText(which){
+      const supported = typeof dlgText.showModal === 'function';
+      const title = which==='A' ? 'Article A — Blog (ton sensationnaliste)' : 'Article B — Article scientifique (ton nuancé)';
+      const body = which==='A' ? ARTICLE_A : ARTICLE_B;
+      if(supported){
+        document.getElementById('dlgTextTitle').textContent = title;
+        articleContainer.innerHTML = body;
+        dlgText.showModal();
+      } else {
+        // Fallback : ouvre dans un nouvel onglet si <dialog> non supporté
+        const w = window.open('', '_blank');
+        if(w){
+          w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${title}</title></head><body>${body}</body></html>`);
+          w.document.close();
+        } else {
+          alert('Votre navigateur ne supporte pas la fenêtre modale. Le contenu sera affiché dans une alerte.');
+        }
+      }
+    }
 
     // Validation des codes de salles
     function ok(elBadge){ elBadge.classList.remove('lock'); elBadge.classList.add('done'); elBadge.textContent='Terminé'; }
@@ -232,6 +319,11 @@
       input.select(); input.setSelectionRange(0, 99999);
       document.execCommand('copy');
     });
+  </script>
+  <script>
+    // Ferme correctement le dialog d'iframe si ouvert au chargement
+    if(document.getElementById('dlg') && document.getElementById('dlg').open){ document.getElementById('dlg').close(); }
+    if(document.getElementById('dlgText') && document.getElementById('dlgText').open){ document.getElementById('dlgText').close(); }
   </script>
 </body>
 </html>
