@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rédaction Centrale – Examen Éducation aux Médias & TICE</title>
+  <style>
+    :root{
+      --bg:#0f1115; --card:#171a21; --ink:#eaeef7; --muted:#9aa3b2; --accent:#ffd000; --ok:#00c853; --no:#ff5252;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:linear-gradient(180deg,#0f1115,#0b0d12); color:var(--ink);}
+    header{position:sticky; top:0; z-index:5; background:#0f1115cc; backdrop-filter:blur(10px); border-bottom:1px solid #232632}
+    .wrap{max-width:1100px; margin:0 auto; padding:24px}
+    h1{font-size:clamp(22px,3vw,32px); margin:0 0 6px 0}
+    p.lead{color:var(--muted); margin:0 0 10px 0}
+    .grid{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:18px}
+    .card{background:var(--card); border:1px solid #232632; border-radius:18px; padding:18px; position:relative; box-shadow:0 6px 30px rgba(0,0,0,.25)}
+    .card h3{margin:0 0 6px 0}
+    .pill{display:inline-flex; align-items:center; gap:6px; border:1px solid #2e3241; border-radius:999px; padding:6px 10px; font-size:12px; color:var(--muted)}
+    .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; border-radius:12px; background:var(--accent); color:#111; font-weight:700; border:none; cursor:pointer}
+    .btn[disabled]{opacity:.35; cursor:not-allowed}
+    .row{display:flex; gap:12px; flex-wrap:wrap}
+    .muted{color:var(--muted)}
+    .kbd{background:#121420; color:#e4e7f1; border:1px solid #2a2e3f; padding:2px 6px; border-radius:6px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size:12px}
+    .footer{margin-top:24px; color:var(--muted); font-size:13px}
+    .badge{position:absolute; top:14px; right:14px; font-size:12px; color:#111; background:var(--accent); border-radius:999px; padding:4px 10px; font-weight:700}
+    .badge.done{background:var(--ok)}
+    .badge.lock{background:#8892a6; color:#111}
+    .stack{display:grid; gap:10px}
+    .code-in{display:flex; gap:8px}
+    .code-in input{flex:1; padding:10px 12px; border-radius:10px; border:1px solid #2a2e3f; background:#101421; color:var(--ink)}
+    .sep{height:1px; background:#232632; margin:16px 0}
+    .final{margin-top:8px; background:var(--card); border:1px solid #232632; border-radius:18px; padding:18px}
+    dialog{border:none; border-radius:18px; padding:0; background:transparent}
+    .modal{background:var(--card); border:1px solid #232632; border-radius:18px; width:min(900px, 92vw); max-height:86vh; overflow:hidden; display:grid; grid-template-rows:auto 1fr auto}
+    .modal header{position:static; border:0; background:transparent}
+    .modal .head{display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid #232632}
+    .modal h2{margin:0; font-size:18px}
+    .modal .body{padding:0; background:#0b0f1c}
+    .modal iframe{width:100%; height:60vh; border:0}
+    .modal .foot{display:flex; gap:10px; align-items:center; justify-content:space-between; padding:12px 16px; border-top:1px solid #232632}
+    .hint{font-size:12px; color:var(--muted)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Rédaction Centrale – Mission Démasquage</h1>
+      <p class="lead">Examen certificatif (1h) – Éducation aux Médias & TICE – Travail individuel — Domaine @ipfc-bw.org requis.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid" id="rooms">
+      <!-- Salle 1 -->
+      <section class="card" id="card1">
+        <span class="badge lock" id="badge1">À faire</span>
+        <h3>🕵️ Salle 1 — Analyse critique : « 40 % moins intelligents »</h3>
+        <p class="muted">Compare deux articles sur le même sujet. Justifie par 3 indices concrets (source, auteur, date, ton, preuves…). Puis saisis le code affiché en fin de formulaire.</p>
+        <div class="row">
+          <button class="btn" id="open1">Ouvrir le Formulaire</button>
+          <span class="pill">Durée suggérée : 15 min</span>
+        </div>
+        <div class="sep"></div>
+        <div class="stack">
+          <label for="code1">Code de fin de salle</label>
+          <div class="code-in">
+            <input id="code1" placeholder="Entrez le code reçu (ex. EVIDENCE)" autocomplete="off" />
+            <button class="btn" id="check1">Valider</button>
+          </div>
+          <div class="hint">Le code apparaît dans le message de confirmation du formulaire.</div>
+        </div>
+      </section>
+
+      <!-- Salle 2 -->
+      <section class="card" id="card2">
+        <span class="badge lock" id="badge2">Verrouillé</span>
+        <h3>📸 Salle 2 — Droit d’auteur & licences (Pixabay)</h3>
+        <p class="muted">Choisis une image réutilisable légalement et rédige l’attribution correcte. Saisis ensuite le code de la salle.</p>
+        <div class="row">
+          <button class="btn" id="open2" disabled>Ouvrir le Formulaire</button>
+          <span class="pill">Durée suggérée : 20 min</span>
+        </div>
+        <div class="sep"></div>
+        <div class="stack">
+          <label for="code2">Code de fin de salle</label>
+          <div class="code-in">
+            <input id="code2" placeholder="Entrez le code reçu (ex. LIBRE)" autocomplete="off" />
+            <button class="btn" id="check2" disabled>Valider</button>
+          </div>
+          <div class="hint">Le code apparaît dans le message de confirmation du formulaire.</div>
+        </div>
+      </section>
+
+      <!-- Salle 3 -->
+      <section class="card" id="card3">
+        <span class="badge lock" id="badge3">Verrouillé</span>
+        <h3>🎤 Salle 3 — Choix d’outil pédagogique (Langues)</h3>
+        <p class="muted">Choisis l’outil le plus pertinent (TBI + PC prof, sans PC élèves) pour stimuler la participation orale, et justifie. Saisis ensuite le code.</p>
+        <div class="row">
+          <button class="btn" id="open3" disabled>Ouvrir le Formulaire</button>
+          <span class="pill">Durée suggérée : 20 min</span>
+        </div>
+        <div class="sep"></div>
+        <div class="stack">
+          <label for="code3">Code de fin de salle</label>
+          <div class="code-in">
+            <input id="code3" placeholder="Entrez le code reçu (ex. PARTAGE)" autocomplete="off" />
+            <button class="btn" id="check3" disabled>Valider</button>
+          </div>
+          <div class="hint">Le code apparaît dans le message de confirmation du formulaire.</div>
+        </div>
+      </section>
+    </div>
+
+    <section class="final" id="final" hidden>
+      <h3>🔑 Validation finale</h3>
+      <p class="muted">Recopie ton code complet et, si besoin, ouvre le formulaire final pour dépôt officiel.</p>
+      <div class="stack">
+        <div class="code-in">
+          <input id="full" value="EVIDENCE - LIBRE - PARTAGE" />
+          <button class="btn" id="copy">Copier</button>
+        </div>
+        <div class="row">
+          <button class="btn" id="openFinal">Ouvrir le Formulaire final</button>
+          <span class="pill">Durée : 5 min</span>
+        </div>
+      </div>
+      <div class="footer">Astuce : vérifie l’orthographe et les espaces du code final.</div>
+    </section>
+
+    <div class="footer">
+      💡 Consignes : Internet autorisé. Travail individuel. Connexion requise avec votre adresse <span class="kbd">@ipfc-bw.org</span>. — © Examen CAP – Éducation aux Médias & TICE
+    </div>
+  </main>
+
+  <!-- Modal générique pour intégrer les formulaires -->
+  <dialog id="dlg">
+    <div class="modal">
+      <div class="head">
+        <h2 id="dlgTitle">Formulaire</h2>
+        <button class="btn" id="close">Fermer</button>
+      </div>
+      <div class="body">
+        <!-- Remplacez les src par vos liens Google Forms intégrés -->
+        <iframe id="frm" src="about:blank" allowfullscreen></iframe>
+      </div>
+      <div class="foot">
+        <span class="hint">Terminez et envoyez le formulaire. Le code de salle apparaît dans le message de confirmation.</span>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    // --- CONFIGUREZ ICI vos liens Google Forms (intégrés) ---
+    // Ouvrez chaque Formulaire > 3 points > Obtenir le lien d'intégration > copiez l'URL '.../viewform?embedded=true'
+    const FORM_URLS = {
+      salle1: "https://docs.google.com/forms/d/e/FORM_ID_SALLE1/viewform?embedded=true",
+      salle2: "https://docs.google.com/forms/d/e/FORM_ID_SALLE2/viewform?embedded=true",
+      salle3: "https://docs.google.com/forms/d/e/FORM_ID_SALLE3/viewform?embedded=true",
+      final:  "https://docs.google.com/forms/d/e/FORM_ID_FINAL/viewform?embedded=true"
+    };
+
+    // --- Codes attendus ---
+    const KEYS = { s1: "EVIDENCE", s2: "LIBRE", s3: "PARTAGE" };
+
+    // --- État en mémoire (par onglet) ---
+    const state = { s1:false, s2:false, s3:false };
+
+    const $ = (q) => document.querySelector(q);
+    const dlg = $('#dlg');
+    const iframe = $('#frm');
+
+    function openForm(which){
+      let title = {
+        salle1: "Salle 1 — Analyse critique",
+        salle2: "Salle 2 — Droit d'auteur",
+        salle3: "Salle 3 — Outil pédagogique",
+        final:  "Validation finale"
+      }[which] || 'Formulaire';
+      $('#dlgTitle').textContent = title;
+      iframe.src = FORM_URLS[which];
+      dlg.showModal();
+    }
+
+    // Ouvrir formulaires
+    $('#open1').addEventListener('click',()=>openForm('salle1'));
+    $('#open2').addEventListener('click',()=>openForm('salle2'));
+    $('#open3').addEventListener('click',()=>openForm('salle3'));
+    $('#openFinal').addEventListener('click',()=>openForm('final'));
+    $('#close').addEventListener('click',()=>{ dlg.close(); iframe.src='about:blank'; });
+
+    // Validation des codes de salles
+    function ok(elBadge){ elBadge.classList.remove('lock'); elBadge.classList.add('done'); elBadge.textContent='Terminé'; }
+
+    $('#check1').addEventListener('click',()=>{
+      const v = ($('#code1').value||'').trim().toUpperCase();
+      if(v===KEYS.s1){
+        state.s1=true; ok($('#badge1'));
+        $('#open2').disabled=false; $('#check2').disabled=false; $('#badge2').textContent='À faire';
+      } else { alert('Code incorrect pour la Salle 1.'); }
+      maybeShowFinal();
+    });
+
+    $('#check2').addEventListener('click',()=>{
+      const v = ($('#code2').value||'').trim().toUpperCase();
+      if(v===KEYS.s2){
+        state.s2=true; ok($('#badge2'));
+        $('#open3').disabled=false; $('#check3').disabled=false; $('#badge3').textContent='À faire';
+      } else { alert('Code incorrect pour la Salle 2.'); }
+      maybeShowFinal();
+    });
+
+    $('#check3').addEventListener('click',()=>{
+      const v = ($('#code3').value||'').trim().toUpperCase();
+      if(v===KEYS.s3){
+        state.s3=true; ok($('#badge3')); maybeShowFinal();
+      } else { alert('Code incorrect pour la Salle 3.'); }
+    });
+
+    function maybeShowFinal(){
+      if(state.s1 && state.s2 && state.s3){
+        document.getElementById('final').hidden=false;
+        document.getElementById('badge3').scrollIntoView({behavior:'smooth', block:'center'});
+      }
+    }
+
+    // Copier le code final
+    document.getElementById('copy').addEventListener('click',()=>{
+      const input = document.getElementById('full');
+      input.select(); input.setSelectionRange(0, 99999);
+      document.execCommand('copy');
+    });
+  </script>
+</body>
+</html>
