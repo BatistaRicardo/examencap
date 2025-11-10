@@ -66,8 +66,8 @@
         <p class="muted">Compare deux articles sur le même sujet. Justifie par 3 indices concrets (source, auteur, date, ton, preuves…). Puis saisis le code affiché en fin de formulaire.</p>
         <div class="row">
           <button class="btn" id="open1">Ouvrir le Formulaire</button>
-          <button class="btn" id="artA" data-which="A">Lire l’Article A (blog)</button>
-          <button class="btn" id="artB" data-which="B">Lire l’Article B (scientifique)</button>
+          <button class="btn" id="artA" data-which="A" onclick="window.openText && window.openText('A')">Lire l’Article A (blog)</button>
+          <button class="btn" id="artB" data-which="B" onclick="window.openText && window.openText('B')">Lire l’Article B (scientifique)</button>
           <span class="pill">Durée suggérée : 15 min</span>
         </div>
         <div class="sep"></div>
@@ -184,8 +184,8 @@
   </dialog>
 
   <script>
-    // S'assure que le script s'exécute une fois le DOM prêt
-    document.addEventListener('DOMContentLoaded', ()=>{
+  // S'assure que le script s'exécute une fois le DOM prêt
+  document.addEventListener('DOMContentLoaded', ()=>{
     // --- CONFIGUREZ ICI vos liens Google Forms (intégrés) ---
     // Ouvrez chaque Formulaire > 3 points > Obtenir le lien d'intégration > copiez l'URL '.../viewform?embedded=true'
     const FORM_URLS = {
@@ -226,37 +226,20 @@
     const articleContainer = document.getElementById('articleContainer');
 
     function openForm(which){
-      let title = {
+      const titleMap = {
         salle1: "Salle 1 — Analyse critique",
         salle2: "Salle 2 — Droit d'auteur",
         salle3: "Salle 3 — Outil pédagogique",
         final:  "Validation finale"
-      }[which] || 'Formulaire';
-      $('#dlgTitle').textContent = title;
+      };
+      $('#dlgTitle').textContent = titleMap[which] || 'Formulaire';
       iframe.src = FORM_URLS[which];
-      dlg.showModal();
-    }
-
-    // Ouvrir formulaires
-    $('#open1').addEventListener('click',()=>openForm('salle1'));
-    // Délégation d'événements pour éviter les problèmes de timing
-    document.addEventListener('click',(e)=>{
-      const t = e.target;
-      if(!(t instanceof HTMLElement)) return;
-      if(t.id==='artA' || t.id==='artB'){
-        const which = t.dataset.which || (t.id==='artA'?'A':'B');
-        openText(which);
+      if(typeof dlg.showModal === 'function'){
+        dlg.showModal();
+      } else {
+        window.open(FORM_URLS[which], '_blank');
       }
-    });
-    $('#open2').addEventListener('click',()=>openForm('salle2'));
-    $('#open3').addEventListener('click',()=>openForm('salle3'));
-    $('#openFinal').addEventListener('click',()=>openForm('final'));
-    $('#close').addEventListener('click',()=>{ dlg.close(); iframe.src='about:blank'; });
-    document.getElementById('closeText').addEventListener('click',()=>{ dlgText.close(); articleContainer.innerHTML=''; });
-    dlgText.addEventListener('click',(e)=>{ if(e.target === dlgText){ dlgText.close(); articleContainer.innerHTML=''; } });
-    window.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && dlgText.open){ dlgText.close(); articleContainer.innerHTML=''; } });
-
-  }); // fin DOMContentLoaded articleContainer.innerHTML=''; });
+    }
 
     function openText(which){
       const supported = typeof dlgText.showModal === 'function';
@@ -265,44 +248,62 @@
       if(supported){
         document.getElementById('dlgTextTitle').textContent = title;
         articleContainer.innerHTML = body;
-        dlgText.showModal();
-      } else {
-        // Fallback : ouvre dans un nouvel onglet si <dialog> non supporté
+        try{ dlgText.showModal(); } catch(err){ /* fallback handled below */ }
+      }
+      if(!supported || !dlgText.open){
         const w = window.open('', '_blank');
         if(w){
-          w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${title}</title></head><body>${body}</body></html>`);
+          w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${title}</title><style>body{font-family:system-ui,Arial;line-height:1.5;padding:20px;}</style></head><body>${body}</body></html>`);
           w.document.close();
         } else {
-          alert('Votre navigateur ne supporte pas la fenêtre modale. Le contenu sera affiché dans une alerte.');
+          alert('Impossible d’ouvrir la fenêtre. Vérifiez le bloqueur de pop-up.');
         }
       }
     }
+    // Expose en global pour les attributs onclick éventuels
+    window.openText = openText;
+
+    // Ouvrir formulaires
+    $('#open1')?.addEventListener('click',()=>openForm('salle1'));
+    $('#open2')?.addEventListener('click',()=>openForm('salle2'));
+    $('#open3')?.addEventListener('click',()=>openForm('salle3'));
+    $('#openFinal')?.addEventListener('click',()=>openForm('final'));
+
+    // Boutons articles (au cas où pas d'onclick inline)
+    document.getElementById('artA')?.addEventListener('click',()=>openText('A'));
+    document.getElementById('artB')?.addEventListener('click',()=>openText('B'));
+
+    // Fermetures modales
+    document.getElementById('close')?.addEventListener('click',()=>{ dlg.close?.(); iframe.src='about:blank'; });
+    document.getElementById('closeText')?.addEventListener('click',()=>{ dlgText.close?.(); articleContainer.innerHTML=''; });
+    dlgText?.addEventListener('click',(e)=>{ if(e.target === dlgText){ dlgText.close?.(); articleContainer.innerHTML=''; } });
+    window.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && dlgText?.open){ dlgText.close?.(); articleContainer.innerHTML=''; } });
 
     // Validation des codes de salles
     function ok(elBadge){ elBadge.classList.remove('lock'); elBadge.classList.add('done'); elBadge.textContent='Terminé'; }
 
-    $('#check1').addEventListener('click',()=>{
-      const v = ($('#code1').value||'').trim().toUpperCase();
+    document.getElementById('check1')?.addEventListener('click',()=>{
+      const v = (document.getElementById('code1').value||'').trim().toUpperCase();
       if(v===KEYS.s1){
-        state.s1=true; ok($('#badge1'));
-        $('#open2').disabled=false; $('#check2').disabled=false; $('#badge2').textContent='À faire';
+        state.s1=true; ok(document.getElementById('badge1'));
+        document.getElementById('open2').disabled=false; document.getElementById('check2').disabled=false; document.getElementById('badge2').textContent='À faire';
       } else { alert('Code incorrect pour la Salle 1.'); }
       maybeShowFinal();
     });
 
-    $('#check2').addEventListener('click',()=>{
-      const v = ($('#code2').value||'').trim().toUpperCase();
+    document.getElementById('check2')?.addEventListener('click',()=>{
+      const v = (document.getElementById('code2').value||'').trim().toUpperCase();
       if(v===KEYS.s2){
-        state.s2=true; ok($('#badge2'));
-        $('#open3').disabled=false; $('#check3').disabled=false; $('#badge3').textContent='À faire';
+        state.s2=true; ok(document.getElementById('badge2'));
+        document.getElementById('open3').disabled=false; document.getElementById('check3').disabled=false; document.getElementById('badge3').textContent='À faire';
       } else { alert('Code incorrect pour la Salle 2.'); }
       maybeShowFinal();
     });
 
-    $('#check3').addEventListener('click',()=>{
-      const v = ($('#code3').value||'').trim().toUpperCase();
+    document.getElementById('check3')?.addEventListener('click',()=>{
+      const v = (document.getElementById('code3').value||'').trim().toUpperCase();
       if(v===KEYS.s3){
-        state.s3=true; ok($('#badge3')); maybeShowFinal();
+        state.s3=true; ok(document.getElementById('badge3')); maybeShowFinal();
       } else { alert('Code incorrect pour la Salle 3.'); }
     });
 
@@ -314,12 +315,13 @@
     }
 
     // Copier le code final
-    document.getElementById('copy').addEventListener('click',()=>{
+    document.getElementById('copy')?.addEventListener('click',()=>{
       const input = document.getElementById('full');
       input.select(); input.setSelectionRange(0, 99999);
       document.execCommand('copy');
     });
-  </script>
+  });
+</script>
   <script>
     // Ferme correctement le dialog d'iframe si ouvert au chargement
     if(document.getElementById('dlg') && document.getElementById('dlg').open){ document.getElementById('dlg').close(); }
